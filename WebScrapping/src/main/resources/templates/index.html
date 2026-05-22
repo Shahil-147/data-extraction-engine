@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScraper | Enterprise Data Extraction</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
+          rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Geist', 'sans-serif'],
+                        mono: ['"Geist Mono"', 'monospace'],
+                    },
+                    colors: {
+                        bgMain: '#000000',
+                        bgCard: '#0a0a0a',
+                        borderSubtle: '#1f1f22',
+                        accent: '#22d3ee',
+                        textMuted: '#888888',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #1f1f22; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #333; }
+
+        .input-glow:focus-within {
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+            border-color: #22d3ee;
+        }
+
+        /* Smooth transitions for view swapping */
+        .view-section {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+
+    background-size: 40px 40px;
+    z-index: -2;
+}
+    </style>
+</head>
+<body class="bg-bgMain text-white font-sans antialiased min-h-screen flex flex-col relative z-0 selection:bg-cyan-500/30">
+
+<div class="pointer-events-none fixed inset-0 overflow-hidden z-[-1]">
+    <div class="absolute -left-1/4 -top-1/4 h-1/2 w-1/2 rounded-full bg-cyan-500/[0.04] blur-3xl"></div>
+    <div class="absolute -bottom-1/4 -right-1/4 h-1/2 w-1/2 rounded-full bg-cyan-500/[0.03] blur-3xl"></div>
+</div>
+
+<nav class="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-black/50 backdrop-blur-md sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-borderSubtle flex items-center justify-center border border-gray-800 shadow-[0_0_10px_rgba(34,211,238,0.1)]">
+            <span class="text-cyan-400 font-mono text-lg">&gt;_</span>
+        </div>
+        <div class="flex flex-col">
+            <span class="text-lg font-bold leading-tight tracking-wide">WebScraper</span>
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-cyan-400 tracking-widest uppercase">
+    Extraction Engine
+</span>
+                <span class="text-[8px] font-bold text-orange-400 ...">
+    v2.0
+</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+        <button onclick="showView('dashboard')" id="nav-dashboard" class="nav-link text-white transition-colors">
+            Dashboard
+        </button>
+        <button onclick="showView('history')" id="nav-history"
+                class="nav-link text-textMuted hover:text-white transition-colors">History
+        </button>
+        <button onclick="showView('analytics')" id="nav-analytics"
+                class="nav-link text-textMuted hover:text-white transition-colors">Analytics
+        </button>
+    </div>
+
+    <div class="flex items-center gap-5">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+            <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            <span class="text-xs font-mono font-medium text-emerald-400 tracking-wide">
+    Scraper Ready
+</span></div>
+    </div>
+</nav>
+
+<main class="flex-1 max-w-7xl w-full mx-auto px-6 py-12 flex flex-col relative">
+
+    <div id="view-dashboard" class="view-section flex flex-col w-full">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-light tracking-tight text-white mb-4">
+                Web Data <span
+                    class="bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text font-semibold text-transparent drop-shadow-sm">Extraction</span>
+            </h1>
+            <p class="text-white/50 text-base max-w-2xl mx-auto">
+                Enterprise-grade web scraping with real-time data extraction, intelligent parsing, and comprehensive
+                analytics.
+            </p>
+        </div>
+
+        <div class="max-w-3xl w-full mx-auto mb-16">
+            <div class="flex items-center bg-[#050505] border border-white/10 rounded-full p-2 input-glow transition-all duration-300">
+                <svg class="w-6 h-6 text-textMuted ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                </svg>
+                <input type="text" id="urlInput"
+                       class="flex-1 bg-transparent font-mono border-none outline-none text-white px-4 placeholder-gray-600 placeholder:text-sm"
+                       placeholder="Enter target URL to scrape...">
+                <button onclick="scrape()" id="extractBtn"
+                        class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-medium px-6 py-2 rounded-full flex items-center gap-2 transition-all border border-cyan-500/30 hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                    Extract
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            <div class="bg-white/[0.02] border border-white/5 rounded-xl p-6 relative group transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/30 hover:shadow-[0_8px_30px_-12px_rgba(34,211,238,0.25)] hover:bg-white/[0.04]">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-bold text-white/50 tracking-widest uppercase transition-colors group-hover:text-white/80">Links Found</span>
+                </div>
+                <div class="text-4xl font-mono text-white" id="stat-links">0</div>
+            </div>
+            <div class="bg-white/[0.02] border border-white/5 rounded-xl p-6 relative group transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/30 hover:shadow-[0_8px_30px_-12px_rgba(34,211,238,0.25)] hover:bg-white/[0.04]">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-bold text-white/50 tracking-widest uppercase transition-colors group-hover:text-white/80">Images Extracted</span>
+                </div>
+                <div class="text-4xl font-mono text-white" id="stat-images">0</div>
+            </div>
+            <div class="bg-white/[0.02] border border-white/5 rounded-xl p-6 relative group transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/30 hover:shadow-[0_8px_30px_-12px_rgba(34,211,238,0.25)] hover:bg-white/[0.04]">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-bold text-white/50 tracking-widest uppercase transition-colors group-hover:text-white/80">Videos Found</span>
+                </div>
+                <div class="text-4xl font-mono text-white" id="stat-videos">0</div>
+            </div>
+            <div class="bg-white/[0.02] border border-white/5 rounded-xl p-6 relative group transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-[0_8px_30px_-12px_rgba(34,211,238,0.4)] hover:bg-white/[0.04]">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-bold text-cyan-400 tracking-widest uppercase drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">Total Data Points</span>
+                </div>
+                <div class="text-4xl font-mono text-cyan-400" id="stat-total">0</div>
+            </div>
+        </div>
+
+        <div id="results-container" class="hidden flex-col gap-6 view-section">
+            <div class="bg-white/[0.02] border border-white/5 rounded-xl p-6 backdrop-blur-sm">
+                <h4 class="text-cyan-400 text-sm font-bold mb-4 border-b border-white/5 pb-2">Extracted Links</h4>
+                <div id="links" class="flex flex-col gap-2 max-h-60 overflow-y-auto text-sm pr-2"></div>
+            </div>
+            <div class="bg-white/[0.02] border border-white/5 rounded-xl p-6 backdrop-blur-sm">
+                <h4 class="text-cyan-400 text-sm font-bold mb-4 border-b border-white/5 pb-2">Media (Images)</h4>
+                <div id="images" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            </div>
+            <div class="bg-white/[0.02] border border-white/5 rounded-xl p-6 mb-10 backdrop-blur-sm">
+                <h4 class="text-cyan-400 text-sm font-bold mb-4 border-b border-white/5 pb-2">Video Assets</h4>
+                <div id="videos" class="flex flex-wrap gap-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-history" class="view-section hidden flex-col w-full gap-6">
+        <h2 class="text-3xl font-light tracking-tight text-white mb-2">Extraction <span
+                class="font-semibold text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]">History</span></h2>
+        <p class="text-white/50 text-sm mb-6">Review your most recent scraping activities and data yields.</p>
+
+        <div class="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden backdrop-blur-sm shadow-xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                    <tr class="border-b border-white/10 text-xs text-white/50 uppercase tracking-widest bg-black/60">
+                        <th class="p-4 font-medium">Target URL</th>
+                        <th class="p-4 font-medium">Date & Time</th>
+                        <th class="p-4 font-medium">Links</th>
+                        <th class="p-4 font-medium">Images</th>
+                        <th class="p-4 font-medium">Videos</th>
+                        <th class="p-4 font-medium text-cyan-400">Total Points</th>
+                    </tr>
+                    </thead>
+                    <tbody id="history-tbody" class="text-sm font-mono text-white/80">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-analytics" class="view-section hidden flex-col w-full gap-6">
+        <h2 class="text-3xl font-light tracking-tight text-white mb-2">Global <span
+                class="font-semibold text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]">Analytics</span>
+        </h2>
+        <p class="text-white/50 text-sm mb-6">Aggregate metrics across all your scraping sessions.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-gradient-to-b from-white/[0.04] to-transparent border border-white/5 rounded-xl p-8 text-center transition-all hover:border-cyan-500/20">
+                <h3 class="text-xs font-bold text-white/50 tracking-widest uppercase mb-4">Total Scrapes</h3>
+                <p class="text-5xl font-mono text-white" id="analytics-scrapes">0</p>
+            </div>
+            <div class="bg-gradient-to-b from-white/[0.04] to-transparent border border-white/5 rounded-xl p-8 text-center transition-all hover:border-cyan-500/20">
+                <h3 class="text-xs font-bold text-white/50 tracking-widest uppercase mb-4">Total Links</h3>
+                <p class="text-5xl font-mono text-white" id="analytics-links">0</p>
+            </div>
+            <div class="bg-gradient-to-b from-white/[0.04] to-transparent border border-white/5 rounded-xl p-8 text-center transition-all hover:border-cyan-500/20">
+                <h3 class="text-xs font-bold text-white/50 tracking-widest uppercase mb-4">Total Images</h3>
+                <p class="text-5xl font-mono text-white" id="analytics-images">0</p>
+            </div>
+            <div class="bg-gradient-to-b from-cyan-500/[0.05] to-transparent border border-white/5 rounded-xl p-8 text-center border-b-4 border-b-cyan-400 shadow-[0_10px_30px_-15px_rgba(34,211,238,0.2)]">
+                <h3 class="text-xs font-bold text-cyan-400 tracking-widest uppercase mb-4">Total Data Yield</h3>
+                <p class="text-5xl font-mono text-cyan-400" id="analytics-yield">0</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-auto border-t border-white/5 pt-8 text-center">
+        <p class="text-xs text-white/30 font-mono tracking-wide">
+            WebScraper Enterprise • Real-time Data Extraction Platform
+        </p>
+    </footer>
+</main>
+
+<script>
+    // --- ADVANCED FEATURE: Smooth Number Counter ---
+    function animateValue(id, start, end, duration) {
+        if (start === end) {
+            document.getElementById(id).innerText = end;
+            return;
+        }
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            // Ease out function for smooth deceleration
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            document.getElementById(id).innerText = Math.floor(easeOutQuart * (end - start) + start);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                document.getElementById(id).innerText = end;
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    // --- NAVIGATION & ROUTING LOGIC ---
+    function showView(viewName) {
+        // Hide all views
+        document.querySelectorAll('.view-section').forEach(el => {
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        });
+
+        // Show target view
+        const targetView = document.getElementById(`view-${viewName}`);
+        targetView.classList.remove('hidden');
+        targetView.classList.add('flex');
+
+        // Update Navbar styles
+        document.querySelectorAll('.nav-link').forEach(el => {
+            el.classList.remove('text-white');
+            el.classList.add('text-textMuted');
+        });
+        const activeNav = document.getElementById(`nav-${viewName}`);
+        activeNav.classList.remove('text-textMuted');
+        activeNav.classList.add('text-white');
+
+        // Fetch specific data if navigating to those tabs
+        if (viewName === 'history') loadHistory();
+        if (viewName === 'analytics') loadAnalytics();
+    }
+
+    // Listen for the "Enter" key on the URL input field
+    document.getElementById("urlInput").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            scrape();
+        }
+    });
+
+    // --- SCRAPING LOGIC (DASHBOARD) ---
+    function scrape() {
+        let url = document.getElementById("urlInput").value;
+        let btn = document.getElementById("extractBtn");
+        if(!url) return;
+
+        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Extracting...`;
+        document.getElementById("results-container").classList.remove("hidden");
+        document.getElementById("results-container").classList.add("flex");
+
+        fetch(`/api/scrape?url=${encodeURIComponent(url)}`)
+            .then(res => res.json())
+            .then(data => {
+                const numLinks = data.links ? data.links.length : 0;
+                const numImages = data.images ? data.images.length : 0;
+                const numVideos = data.videos ? data.videos.length : 0;
+                const total = numLinks + numImages + numVideos;
+
+                // Animate stats counting up over 1 second (1000ms)
+                animateValue("stat-links", 0, numLinks, 1000);
+                animateValue("stat-images", 0, numImages, 1000);
+                animateValue("stat-videos", 0, numVideos, 1000);
+                animateValue("stat-total", 0, total, 1000);
+
+                document.getElementById("links").innerHTML = (data.links || []).map(link =>
+                    `<a href="${link}" target="_blank" class="text-white/50 hover:text-cyan-400 font-mono text-xs break-all block py-3 border-b border-white/5 transition-colors leading-relaxed hover:bg-white/[0.02] hover:pl-2 rounded">${link}</a>`
+                ).join("");
+
+                document.getElementById("images").innerHTML = (data.images || []).map(img =>
+    `
+    <div class="
+        relative
+        group
+        overflow-hidden
+        rounded-3xl
+        border
+        border-white/10
+        bg-white/[0.03]
+        backdrop-blur-xl
+        shadow-2xl
+        hover:border-cyan-500/50
+        hover:shadow-[0_0_35px_rgba(34,211,238,0.25)]
+        transition-all
+        duration-500
+        hover:-translate-y-2
+    ">
+
+        <img
+            src="${img}"
+            loading="lazy"
+            decoding="async"
+            referrerpolicy="no-referrer"
+            onerror="this.parentElement.style.display='none'"
+
+            class="
+                w-full
+                h-[260px]
+                object-cover
+                opacity-90
+                group-hover:opacity-100
+                group-hover:scale-110
+                transition-all
+                duration-700
+            "
+        />
+
+        <div class="
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-black/60
+            via-transparent
+            to-transparent
+            opacity-0
+            group-hover:opacity-100
+            transition-all
+            duration-500
+        "></div>
+
+    </div>
+    `
+).join("");
+
+                document.getElementById("videos").innerHTML = (data.videos || []).map(v =>
+                    `<div class="rounded-lg overflow-hidden border border-white/10 bg-black shadow-lg"><video src="${v}" controls class="h-32 w-auto"></video></div>`
+                ).join("");
+
+                btn.innerHTML = `Extract <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>`;
+            })
+            .catch(err => {
+                btn.innerHTML = `<span class="text-red-400">Error. Try Again.</span>`;
+                setTimeout(() => {
+                    btn.innerHTML = `Extract <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>`;
+                }, 3000);
+            });
+    }
+
+    // --- HISTORY LOGIC ---
+    function loadHistory() {
+        const tbody = document.getElementById('history-tbody');
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-cyan-400 animate-pulse">Loading history...</td></tr>`;
+
+        fetch('/api/history')
+            .then(res => res.json())
+            .then(data => {
+                if(!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-white/30">No extraction history found. Run a scrape first!</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map(item => {
+                    const dateObj = new Date(item.timestamp);
+                    const formattedDate = dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString();
+
+                    return `
+                    <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-default">
+                        <td class="p-4 truncate max-w-[200px] text-cyan-400/80 hover:text-cyan-400" title="${item.url}">${item.url}</td>
+                        <td class="p-4 text-xs text-white/50">${formattedDate}</td>
+                        <td class="p-4">${item.linksCount}</td>
+                        <td class="p-4">${item.imagesCount}</td>
+                        <td class="p-4">${item.videosCount}</td>
+                        <td class="p-4 font-bold text-cyan-400">${item.totalDataPoints}</td>
+                    </tr>`;
+                }).join('');
+            })
+            .catch(err => {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500">Failed to load history. Make sure backend is running.</td></tr>`;
+            });
+    }
+
+    // --- ANALYTICS LOGIC ---
+    function loadAnalytics() {
+        fetch('/api/analytics')
+            .then(res => res.json())
+            .then(data => {
+                const totalYield = (data.totalLinks || 0) + (data.totalImages || 0) + (data.totalVideos || 0);
+
+                // Advanced visual counting up to the target number
+                animateValue('analytics-scrapes', 0, data.totalScrapes || 0, 1500);
+                animateValue('analytics-links', 0, data.totalLinks || 0, 1500);
+                animateValue('analytics-images', 0, data.totalImages || 0, 1500);
+                animateValue('analytics-yield', 0, totalYield, 1500);
+            })
+            .catch(err => console.error("Failed to load analytics", err));
+    }
+</script>
+</body>
+</html>
